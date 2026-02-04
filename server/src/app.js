@@ -21,6 +21,7 @@ const allowedOrigins = new Set([
   "http://localhost:5174",
   "http://localhost:4173",
   "http://localhost:4174",
+  "https://khabarnepal.netlify.app",
 ]);
 
 const corsOptions = {

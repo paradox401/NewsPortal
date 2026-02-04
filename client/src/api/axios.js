@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-    baseURL: "http://localhost:8000/api", // change if deployed
-  withCredentials: true,
+  baseURL: "https://newsportal-7lo9.onrender.com/api",
+  withCredentials: false,
 });
 
 export default api;
