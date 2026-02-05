@@ -75,11 +75,27 @@ export const getPostsByCategory = async (req, res) => {
 export const searchPosts = async (req, res) => {
   try {
     const query = (req.query.q || "").trim();
-    if (!query) {
+    const category = (req.query.category || "").trim();
+    const from = req.query.from ? new Date(req.query.from) : null;
+    const to = req.query.to ? new Date(req.query.to) : null;
+
+    if (!query && !category && !from && !to) {
       return res.json([]);
     }
 
-    const posts = await Post.find(buildSearchQuery(query))
+    const baseQuery = query ? buildSearchQuery(query) : { status: "approved" };
+
+    if (category) {
+      baseQuery.category = { $regex: new RegExp(category, "i") };
+    }
+
+    if (from || to) {
+      baseQuery.createdAt = {};
+      if (from) baseQuery.createdAt.$gte = from;
+      if (to) baseQuery.createdAt.$lte = to;
+    }
+
+    const posts = await Post.find(baseQuery)
       .sort({ createdAt: -1 })
       .limit(40)
       .select(getPublicPostFields());

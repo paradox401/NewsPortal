@@ -9,8 +9,8 @@ export const getSingleNews = (id) =>
 export const getNewsByCategory = (category) =>
   api.get(`/public/posts/category/${category}`);
 
-export const searchNews = (query) =>
-  api.get(`/public/posts/search?q=${query}`);
+export const searchNews = (params) =>
+  api.get("/public/posts/search", { params });
 
 export const getBreakingNews = () =>
   api.get("/public/posts/breaking");

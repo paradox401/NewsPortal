@@ -8,17 +8,31 @@ import { truncateText } from "../utils/truncateText";
 const Search = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const query = searchParams.get("q") || "";
+  const categoryParam = searchParams.get("category") || "";
+  const fromParam = searchParams.get("from") || "";
+  const toParam = searchParams.get("to") || "";
 
   const [results, setResults] = useState([]);
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(false);
   const [input, setInput] = useState(query);
+  const [category, setCategory] = useState(categoryParam);
+  const [fromDate, setFromDate] = useState(fromParam);
+  const [toDate, setToDate] = useState(toParam);
 
   useEffect(() => {
     if (!query) return;
 
     setLoading(true);
-    Promise.all([searchNews(query), getTrendingNews()])
+    Promise.all([
+      searchNews({
+        q: query,
+        category: categoryParam || undefined,
+        from: fromParam || undefined,
+        to: toParam || undefined,
+      }),
+      getTrendingNews(),
+    ])
       .then(([res, trendingRes]) => {
         setResults(Array.isArray(res.data) ? res.data : []);
         setTrending(Array.isArray(trendingRes.data) ? trendingRes.data : []);
@@ -29,7 +43,12 @@ const Search = () => {
   const handleSearch = (e) => {
     e.preventDefault();
     if (!input.trim()) return;
-    setSearchParams({ q: input.trim() });
+    setSearchParams({
+      q: input.trim(),
+      category: category || "",
+      from: fromDate || "",
+      to: toDate || "",
+    });
   };
 
   return (
@@ -41,13 +60,39 @@ const Search = () => {
           <p className="mt-2 text-sm text-slate-600">
             Search our archive and stay updated with tailored results.
           </p>
-          <form onSubmit={handleSearch} className="mt-5 flex flex-wrap gap-3">
+          <form onSubmit={handleSearch} className="mt-5 grid gap-3 md:grid-cols-[2fr_1fr_1fr_1fr_auto]">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Search news..."
-              className="flex-1 min-w-[220px] rounded-full border border-slate-300/60 px-4 py-2 text-sm"
+              className="rounded-full border border-slate-300/60 px-4 py-2 text-sm"
+            />
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="rounded-full border border-slate-300/60 px-4 py-2 text-sm"
+            >
+              <option value="">All categories</option>
+              {["Politics", "Business", "Technology", "Sports", "Entertainment", "General"].map(
+                (cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                )
+              )}
+            </select>
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="rounded-full border border-slate-300/60 px-4 py-2 text-sm"
+            />
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="rounded-full border border-slate-300/60 px-4 py-2 text-sm"
             />
             <button
               type="submit"

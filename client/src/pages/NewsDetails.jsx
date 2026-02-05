@@ -20,6 +20,31 @@ const NewsDetails = () => {
       .finally(() => setLoading(false));
   }, [id]);
 
+  useEffect(() => {
+    if (!news) return;
+    const title = `${news.title} | NewsPortal`;
+    const description = news.content ? news.content.slice(0, 160) : "";
+    document.title = title;
+
+    const upsertMeta = (name, content, attr = "name") => {
+      let tag = document.querySelector(`meta[${attr}=\"${name}\"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute(attr, name);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", content);
+    };
+
+    upsertMeta("description", description);
+    upsertMeta("og:title", title, "property");
+    upsertMeta("og:description", description, "property");
+    upsertMeta("og:type", "article", "property");
+    if (news.image || news.images?.[0]) {
+      upsertMeta("og:image", news.image || news.images?.[0], "property");
+    }
+  }, [news]);
+
   const readingTime = useMemo(
     () => estimateReadingTime(news?.content || ""),
     [news]
